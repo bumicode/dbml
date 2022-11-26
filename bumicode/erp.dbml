@@ -448,7 +448,7 @@ Table stock.items {
   name string [null]
   status item_status [null]
   item_group_id bigint [ref: > stock.item_groups.id]
-  default_uom bigint [ref: - stock.uoms.id]
+  default_uom bigint [ref: - stock.item_has_oums.id]
   description text [null]
   created_at datetime [default: `now()`]
   edited_at datetime [default: `now()`]
@@ -529,8 +529,107 @@ Table stock.item_attributes {
 }
 
 Table stock.item_has_attributes {
-  item_id bigint [ref: <> stock.items.id]
-  item_attribute_id bigint [ref: <> stock.item_attributes.id]
+  item_id bigint [ref: <> stock.items.id, not null]
+  item_attribute_id bigint [ref: <> stock.item_attributes.id, not null]
+}
+
+Table stock.item_prices {
+  id bigint [pk, increment]
+  is_buying boolean [default: 0]
+  is_selling boolean [default: 0]
+  item_id bigint [ref: > stock.items.id, not null]
+  item_uom_id bigint [ref: > stock.item_has_oums.id, not null]
+  packing_unit integer [default: 0]
+  price_list_id bigint [ref: > stock.price_lists.id]
+  batch_no bigint [Note: "REFERENCE NOT SET"]
+  rate bigint [Note: "Harga"]
+  valid_from datetime [default: `now()`]
+  valid_upto datetime [null]
+  note text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.priceable [Note: '''
+    **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
+  '''] {
+  item_price_id bigint [ref: - stock.item_prices.id]
+  model_id bigint
+  model_type model_priceable
+}
+
+Enum model_priceable {
+  "Customer"
+  "Supplier"
+}
+
+Ref: stock.priceable.model_id > selling.customers.id
+Ref: stock.priceable.model_id > buying.suppliers.id
+
+Table buying.suppliers {
+  id bigint [pk, increment]
+  name string [not null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.item_inventories {
+  id bigint [pk, increment]
+  item_id bigint [ref: - stock.items.id, not null]
+  shelf_life_in_days integer [null]
+  warranty_period integer [null]
+  end_of_life datetime [not null]
+  weight_per_unit integer [null]
+  weight_uom bigint [ref: - stock.item_has_oums.id, Note: "Default UOM Item"]
+  default_material_request_type material_request_type [default: "Purchase"]
+  valuation_method valuation_method [default: "", null]
+  allow_negative_stock boolean [default: 0]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum material_request_type {
+  "Purchase"
+  "Material Transfer"
+  "Material Issue"
+  "Manufacture"
+  "Customer Provided"
+}
+
+Enum valuation_method {
+  "FIFO"
+  "Moving Average"
+  "LIFO"
+}
+
+Table stock.item_has_oums {
+  id bigint [pk, increment]
+  is_default boolean [default: 0]
+  item_id bigint [ref: > stock.items.id, not null]
+  uom_id bigint [ref: > stock.uoms.id, not null]
+  conversion_factor integer
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.item_barcodes {
+  id bigint [pk, increment]
+  item_id bigint [ref: > stock.items.id, not null]
+  uom_id bigint [ref: > stock.item_has_oums.id, not null]
+  barcode string [not null]
+  barcode_type barcode_type [not null] 
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum barcode_type {
+  "EAN"
+  "UPC-A"
 }
 
 Table accounting.payment_terms_templates {
@@ -542,8 +641,8 @@ Table accounting.payment_terms_templates {
 }
 
 Table accounting.payment_terms_template_has_payment_terms {
-  payment_terms_template_id bigint [ref: <> accounting.payment_terms_templates.id]
-  payment_term_id bigint [ref: <> accounting.payment_terms.id]
+  payment_terms_template_id bigint [ref: <> accounting.payment_terms_templates.id, not null]
+  payment_term_id bigint [ref: <> accounting.payment_terms.id, not null]
 }
 
 Table accounting.payment_terms {
@@ -551,8 +650,8 @@ Table accounting.payment_terms {
   name string [not null]
   invoice_portion integer
   due_date_base due_date_base [default: "Day(s) after invoice date"]
-  credit_days integer
-  description text
+  credit_days integer [not null, default: 0]
+  description text [null]
   created_at datetime [default: `now()`]
   edited_at datetime [default: `now()`]
   deleted_at datetime [null]
