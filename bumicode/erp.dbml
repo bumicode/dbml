@@ -44,13 +44,13 @@ Table permissions {
 }
 
 Table role_has_permission {
-  role_id bigint [ref:  > roles.id]
-  permission_id bigint [ref:  > permissions.id]
+  role_id bigint [ref:  <> roles.id]
+  permission_id bigint [ref:  <> permissions.id]
 }
 
 Table model_has_role {
-  user_id bigint [ref: - users.id]
-  role_id bigint [ref: - roles.id]
+  user_id bigint [ref: <> users.id]
+  role_id bigint [ref: <> roles.id]
 }
 
 Table crm.leads {
@@ -178,12 +178,14 @@ Enum addressable_model_type {
   "Customer"
   "Prospect"
   "Company"
+  "Warehouse"
 }
 
 Ref: common.addressable.model_id > crm.leads.id
 Ref: common.addressable.model_id > crm.prospects.id
 Ref: common.addressable.model_id > selling.customers.id
 Ref: common.addressable.model_id > company.companies.id
+Ref: common.addressable.model_id > stock.warehouses.id
 
 Table common.contacts {
   id bigint [pk, increment]
@@ -227,12 +229,14 @@ Enum contactable_model_type {
   "Customer"
   "Prospect"
   "Company"
+  "Warehouse"
 }
 
 Ref: common.contactable.model_id > crm.leads.id
 Ref: common.contactable.model_id > crm.prospects.id
 Ref: common.contactable.model_id > selling.customers.id
 Ref: common.contactable.model_id > company.companies.id
+Ref: common.contactable.model_id > stock.warehouses.id
 
 Table common.emails {
   id bigint [pk, increment]
@@ -244,8 +248,8 @@ Table common.emails {
 }
 
 Table common.contact_has_email {
-  contact_id bigint [ref: > common.contacts.id]
-  email_id bigint [ref: - common.emails.id]
+  contact_id bigint [ref: <> common.contacts.id]
+  email_id bigint [ref: <> common.emails.id]
 }
 
 Table common.numbers {
@@ -438,9 +442,11 @@ Table stock.items {
   is_disabled boolean [default: 0]
   is_maintain_stock boolean [default: 1]
   is_has_variant boolean [default: 0]
+  brand_id bigint [ref: > stock.brands.id]
+  variant_of bigint [ref: > stock.items.id, null]
   code string [not null]
   name string [null]
-  status item_status
+  status item_status [null]
   item_group_id bigint [ref: > stock.item_groups.id]
   default_uom bigint [ref: - stock.uoms.id]
   description text [null]
@@ -457,7 +463,7 @@ Enum item_status {
 Table stock.item_groups {
   id bigint [pk, increment]
   name string [not null]
-  parent_id bigint [ref: < stock.item_groups.id]
+  parent_id bigint [ref: > stock.item_groups.id]
   is_group boolean [default: 0]
   created_at datetime [default: `now()`]
   edited_at datetime [default: `now()`]
@@ -466,10 +472,65 @@ Table stock.item_groups {
 
 Table stock.uoms {
   id bigint [pk, increment]
-  is_disabled boolean [default: 0]
+  is_enable boolean [default: 1]
   created_at datetime [default: `now()`]
   edited_at datetime [default: `now()`]
   deleted_at datetime [null]
+}
+
+Table stock.warehouses {
+  id bigint [pk, increment]
+  is_disabled boolean [default: 0]
+  is_group boolean [default: 0]
+  warehouse_type_id bigint [ref: > stock.warehouse_types.id, null]
+  name string [not null]
+  parent_id bigint [ref: > stock.warehouses.id, null]
+  warehouse_account bigint [Note: "REFERENCE NOT SET", null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.warehouse_types {
+  id bigint [pk, increment]
+  name string [not null]
+  description text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.brands {
+  id bigint [pk, increment]
+  name string [not null]
+  description text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.item_attributes {
+  id bigint [pk, increment]
+  name string [not null]
+  value array [not null, Note: '''
+    [
+      {
+        value: "Red",
+        abb: RED
+      }, {
+        value: Green,
+        abb: GRE
+      }
+    ]
+  ''']
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.item_has_attributes {
+  item_id bigint [ref: <> stock.items.id]
+  item_attribute_id bigint [ref: <> stock.item_attributes.id]
 }
 
 Table accounting.payment_terms_templates {
@@ -481,8 +542,8 @@ Table accounting.payment_terms_templates {
 }
 
 Table accounting.payment_terms_template_has_payment_terms {
-  payment_terms_template_id bigint [ref: - accounting.payment_terms_templates.id]
-  payment_term_id bigint [ref: - accounting.payment_terms.id]
+  payment_terms_template_id bigint [ref: <> accounting.payment_terms_templates.id]
+  payment_term_id bigint [ref: <> accounting.payment_terms.id]
 }
 
 Table accounting.payment_terms {
