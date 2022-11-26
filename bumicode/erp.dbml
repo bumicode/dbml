@@ -1,0 +1,575 @@
+Project bumicode_erp {
+  database_type: 'Laravel'
+  Note: '''
+    # BUMICODE ERP DB
+    **Dokumentasi Database untuk projek ERP dari BUMICODE**  
+    - Flow Aplikasi bisa dilihat pada **[Link Ini](https://dbdiagram.io/d/637edb1cc9abfc611174deb0)**  
+    - Source Code bisa dilihat di **[Repository Github](https://github.com/bumicode/erp)**  
+    - Wiki Aplikasi bisa dilihat di bagian **[Wiki Repository Github](https://github.com/bumicode/erp/wiki)**  
+    - Gunakan **[Fitur Diskusi](https://github.com/bumicode/erp/discussions)** untuk berbagi ide dan sebagainya  
+      
+        
+        code with ❤ bumicode
+  '''
+}
+
+Table users as U {
+  id bigint [pk, increment]
+  slug string
+  name string
+  email string
+  email_verified_at timestamp [null]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table roles {
+  id bigint [pk, increment]
+  name string
+  description text
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table permissions {
+  id bigint [pk, increment]
+  name string
+  description text
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table role_has_permission {
+  role_id bigint [ref:  > roles.id]
+  permission_id bigint [ref:  > permissions.id]
+}
+
+Table model_has_role {
+  user_id bigint [ref: - users.id]
+  role_id bigint [ref: - roles.id]
+}
+
+Table crm.leads {
+  id bigint [pk, increment]
+  series string [not null]
+  saluation bigint [ref: - crm.saluations.id, null]
+  job_title string [null]
+  lead_owner bigint [ref: - users.id, null]
+  gender bigint [ref: - crm.genders.id, null]
+  first_name string [not null]
+  middle_name string [null]
+  last_name string [null]
+  lead_source bigint [ref: - crm.lead_sources.id, null]
+  status leads_status [null]
+  lead_type lead_type [null]
+  request_type request_type [null]
+  city string [null]
+  state string [null]
+  country string [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum leads_status {
+  "Lead"
+  "Open"
+  "Replied"
+  "Opportunity"
+  "Quotation"
+  "Lost Quotation"
+  "Interested"
+  "Converted"
+  "Do Not Contact"
+}
+
+Enum lead_type {
+  "Client"
+  "Channel Partner"
+  "Consultant"
+}
+
+Enum request_type {
+  "Product Enquiry"
+  "Request for Information"
+  "Suggestions"
+  "Other"
+}
+
+Table crm.lead_sources {
+  id bigint [pk, increment]
+  name string [not null]
+  description text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table crm.saluations {
+  id bigint [pk, increment]
+  name string [not null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table crm.genders {
+  id bigint [pk, increment]
+  name string [not null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table common.addresses {
+  id bigint [pk, increment]
+  is_preferred_billing_address boolean [default: 0]
+  is_preferred_shipping_address boolean [default: 0]
+  is_disabled boolean [default: 0]
+  title string [not null]
+  address_type address_type [default: "Billing"]
+  address_line_one string [not null]
+  address_line_two string [null]
+  city string [not null]
+  district string [null]
+  state string [not null]
+  country string [null]
+  postal_code string [null]
+  email_address string [null]
+  phone string [null]
+  fax string [null]
+  tax_category bigint
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum address_type {
+  "Billing"
+  "Shipping"
+  "Office"
+  "Personal"
+  "Plant"
+  "Postal"
+  "Shop"
+  "Subsidiary"
+  "Warehouse"
+  "Current"
+  "Permanent"
+  "Other"
+}
+
+Table common.addressable [Note: '''
+    **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
+  '''] {
+  id bigint [pk, increment]
+  title string [null]
+  address_id bigint [ref: > common.addresses.id, not null]
+  model_id integer [not null]
+  model_type addressable_model_type [not null]
+}
+
+Enum addressable_model_type {
+  "Lead"
+  "Customer"
+  "Prospect"
+  "Company"
+}
+
+Ref: common.addressable.model_id > crm.leads.id
+Ref: common.addressable.model_id > crm.prospects.id
+Ref: common.addressable.model_id > selling.customers.id
+Ref: common.addressable.model_id > company.companies.id
+
+Table common.contacts {
+  id bigint [pk, increment]
+  is_primary_contact boolean [default: 0]
+  is_billing_contact boolean [default: 0]
+  first_name string [not null]
+  middle_name string [null]
+  last_name string [null]
+  email_address string [null]
+  user_id bigint [ref: - users.id, null]
+  address_id bigint [ref: - common.addressable.id, null]
+  status contact_status [default: "Passive"]
+  saluation bigint [ref: - crm.saluations.id, null]
+  designation string [null]
+  gender_id bigint [ref: - crm.genders.id, null]
+  mobile_no string [null]
+  company_name string [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum contact_status {
+  "Passive"
+  "Open"
+  "Replied"
+}
+
+Table common.contactable [Note: '''
+    **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
+  '''] {
+  id bigint [pk, increment]
+  title string [null]
+  contact_id bigint [ref: > common.contacts.id]
+  model_id bigint
+  model_type contactable_model_type
+}
+
+Enum contactable_model_type {
+  "Lead"
+  "Customer"
+  "Prospect"
+  "Company"
+}
+
+Ref: common.contactable.model_id > crm.leads.id
+Ref: common.contactable.model_id > crm.prospects.id
+Ref: common.contactable.model_id > selling.customers.id
+Ref: common.contactable.model_id > company.companies.id
+
+Table common.emails {
+  id bigint [pk, increment]
+  email string [not null]
+  is_primary boolean [default: 0]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table common.contact_has_email {
+  contact_id bigint [ref: > common.contacts.id]
+  email_id bigint [ref: - common.emails.id]
+}
+
+Table common.numbers {
+  id bigint [pk, increment]
+  number string [not null]
+  is_primary_phone boolean [default: 0]
+  is_primary_mobile boolean [default: 0]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table common.contact_has_numbers {
+  contact_id bigint [ref: > common.contacts.id]
+  number_id bigint [ref: - common.numbers.id]
+}
+
+Table crm.opportunity {
+  id bigint [pk, increment]
+  opportunity_date datetime [default: `now()`]
+  model_id bigint
+  model_type opportunity_model_type [Note: "Opportunity From"]
+  status opportunity_status
+  opportunity_type_id bigint [ref: - crm.opportunity_types.id]
+  lead_source_id bigint [ref: - crm.lead_sources.id]
+  opportunity_owner_id bigint [ref: - users.id]
+  sales_stage_id bigint [ref: - crm.sales_stages.id]
+  expected_closing_date date [null]
+  probability integer [default: 100]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum opportunity_model_type {
+  "Lead"
+  "Customer"
+  "Prospect"
+}
+
+Enum opportunity_status {
+  "Open"
+  "Quotation"
+  "Converted"
+  "Lost"
+  "Replied"
+  "Closed"
+}
+
+Table crm.opportunity_types {
+  id bigint [pk, increment]
+  name string [not null]
+  description text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table crm.sales_stages {
+  id bigint [pk, increment]
+  name status [not null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table crm.organizations {
+  id bigint [pk, increment]
+  name string [null]
+  no_employees organizations_no_employees [default: "1-10"]
+  annual_revenue bigint [null]
+  industry bigint [ref: - crm.industries.id]
+  market_segment bigint [ref: - crm.market_segments.id]
+  territory_id bigint [ref: - selling.territories.id]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum organizations_no_employees {
+  "1-10"
+  "11-50"
+  "51-200"
+  "201-500"
+  "501-1000"
+  "1000+"
+}
+
+Table crm.industries {
+  id bigint [pk, increment]
+  name string
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table crm.market_segments {
+  id bigint [pk, increment]
+  name string
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table crm.organizationable [Note: '''
+    **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
+  '''] {
+  id bigint [pk, increment]
+  organizations_id bigint [ref: > crm.organizations.id]
+  model_id bigint
+  model_type organizationable_model_type
+}
+
+Enum organizationable_model_type {
+  "Lead"
+  "Opportunity"
+}
+
+Ref: crm.organizationable.model_id > crm.leads.id
+Ref: crm.organizationable.model_id > crm.opportunity.id
+
+Table crm.prospects {
+  id bigint [pk, increment]
+  customer_group bigint [ref: > selling.customer_groups.id, null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table selling.customers {
+  id bigint [pk, increment]
+  name string [not null]
+  customer_group_id bigint [ref: > selling.customer_groups.id]
+  default_company_bank_account bigint [null]
+  customer_type customer_type [default: "Individual"]
+  territory_id bigint [ref: > selling.territories.id]
+  account_manager_id bigint [ref: > public.users.id]
+  gender bigint [ref: - crm.genders.id, null]
+  allow_sales_invoice_creation_without_sales_order boolean [default: 0]
+  allow_sales_invoice_creation_without_delivery_note boolean [default: 0]
+  is_internal_customer boolean [default: 0]
+  is_disabled boolean [default: 0]
+  from_lead_id bigint [ref: - crm.leads.id, null]
+  from_opportunity bigint [ref: - crm.opportunity.id, null]
+  primary_contact_id bigint [null, ref: - common.contactable.id]
+  primary_address_id bigint [null, ref: - common.addressable.id]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum selling.customer_type {
+  "Company"
+  "Individual"
+}
+
+Table selling.customer_groups {
+  id bigint [pk, increment]
+  is_group boolean [default: 0]
+  name string [not null]
+  parent_id bigint [ref: > selling.customer_groups.id, null]
+  default_price_list_id bigint [ref: > stock.price_lists.id, null]
+  default_payment_terms_template bigint [ref: > accounting.payment_terms_templates.id, null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table selling.credit_limits {
+  id bigint [pk, increment]
+  customer_group_id bigint [ref: - selling.customer_groups.id]
+  credit_limit bigint
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.price_lists {
+  id bigint [pk, increment]
+  name string [not null]
+  is_buying boolean [default: 0]
+  is_selling boolean [default: 0]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.items {
+  id bigint [pk, increment]
+  is_disabled boolean [default: 0]
+  is_maintain_stock boolean [default: 1]
+  is_has_variant boolean [default: 0]
+  code string [not null]
+  name string [null]
+  status item_status
+  item_group_id bigint [ref: > stock.item_groups.id]
+  default_uom bigint [ref: - stock.uoms.id]
+  description text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum item_status {
+  "Variant"
+  "Template"
+}
+
+Table stock.item_groups {
+  id bigint [pk, increment]
+  name string [not null]
+  parent_id bigint [ref: < stock.item_groups.id]
+  is_group boolean [default: 0]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.uoms {
+  id bigint [pk, increment]
+  is_disabled boolean [default: 0]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table accounting.payment_terms_templates {
+  id bigint [pk, increment]
+  name string [not null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table accounting.payment_terms_template_has_payment_terms {
+  payment_terms_template_id bigint [ref: - accounting.payment_terms_templates.id]
+  payment_term_id bigint [ref: - accounting.payment_terms.id]
+}
+
+Table accounting.payment_terms {
+  id bigint [pk, increment]
+  name string [not null]
+  invoice_portion integer
+  due_date_base due_date_base [default: "Day(s) after invoice date"]
+  credit_days integer
+  description text
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum due_date_base {
+  "Day(s) after invoice date"
+  "Day(s) after the end of the invoice month"
+  "Month(s) after the end of the invoice month"
+}
+
+Table company.companies {
+  id bigint [pk, increment]
+  name string [not null]
+  parent_id bigint [ref: < company.companies.id]
+  is_group boolean [default: 0]
+  description text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table company.settings {
+  id bigint [pk, increment]
+}
+
+Table selling.territories {
+  id bigint [pk, increment]
+  parent_id bigint [ref: > selling.territories.id, null]
+  territory_manager_id bigint [ref: > selling.sales_persons.id]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table selling.sales_persons {
+  id bigint [pk, increment]
+  is_group boolean [default: 0]
+  is_enable boolean [default: 1]
+  name string [not null]
+  employee bigint [Note: "REFERENCE NOT SET"]
+  parent_id bigint [ref: > selling.sales_persons.id]
+  commision_rate integer [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table selling.sales_person_has_targets {
+  sales_person_id bigint [ref: - selling.sales_persons.id]
+  item_group_target_id bigint [Note: "REFERENCE NOT SET"]
+  fiscal_year_id bigint [Note: "REFERENCE NOT SET"]
+  target_qty integer [default: 0]
+  target_amount bigint [default: 0]
+  target_distribution_id bigint [Note: "REFERENCE NOT SET"]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table selling.territory_has_targets {
+  sales_person_id bigint [ref: - selling.territories.id]
+  item_group_target_id bigint [Note: "REFERENCE NOT SET"]
+  fiscal_year_id bigint [Note: "REFERENCE NOT SET"]
+  target_qty integer [default: 0]
+  target_amount bigint [default: 0]
+  target_distribution_id bigint [Note: "REFERENCE NOT SET"]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table common.status [Note: "Opsional bila status dimasukkan kedalam database"] {
+  id bigint [pk, increment]
+  name string
+  model_id bigint
+  model_type string
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
