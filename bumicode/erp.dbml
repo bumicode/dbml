@@ -179,6 +179,8 @@ Enum addressable_model_type {
   "Prospect"
   "Company"
   "Warehouse"
+  "Supplier"
+  "Driver"
 }
 
 Ref: common.addressable.model_id > crm.leads.id
@@ -186,6 +188,8 @@ Ref: common.addressable.model_id > crm.prospects.id
 Ref: common.addressable.model_id > selling.customers.id
 Ref: common.addressable.model_id > company.companies.id
 Ref: common.addressable.model_id > stock.warehouses.id
+Ref: common.addressable.model_id > buying.suppliers.id
+Ref: common.addressable.model_id - common.drivers.id
 
 Table common.contacts {
   id bigint [pk, increment]
@@ -230,6 +234,7 @@ Enum contactable_model_type {
   "Prospect"
   "Company"
   "Warehouse"
+  "Supplier"
 }
 
 Ref: common.contactable.model_id > crm.leads.id
@@ -237,6 +242,7 @@ Ref: common.contactable.model_id > crm.prospects.id
 Ref: common.contactable.model_id > selling.customers.id
 Ref: common.contactable.model_id > company.companies.id
 Ref: common.contactable.model_id > stock.warehouses.id
+Ref: common.contactable.model_id > buying.suppliers.id
 
 Table common.emails {
   id bigint [pk, increment]
@@ -652,6 +658,7 @@ Enum entry_type_purpose {
 
 Table stock.delivery_notes {
   id bigint [pk, increment]
+  status delivery_note_status [default: "Draft"]
   customer_id bigint [ref: > selling.customers.id]
   posting_date datetime [default: `now()`]
   address_id bigint [ref: > common.addressable.id, not null]
@@ -665,9 +672,41 @@ Table stock.delivery_notes {
   grand_total bigint [not null]
   rounding_adjustment bigint [null]
   rounded_total bigint [null]
+  transporter_id bigint [ref: > buying.suppliers.id, Note: "Supplier is Transporter"]
+  driver_id bigint [ref: > common.drivers.id]
+  transport_receipt_no string [null]
+  transport_receipt_date datetime
+  vehincle_no string [null]
   created_at datetime [default: `now()`]
   edited_at datetime [default: `now()`]
   deleted_at datetime [null]
+}
+
+Enum delivery_note_status {
+  "Draft"
+  "To Bill"
+  "Completed"
+  "Return Issued"
+  "Cancelled"
+  "Closed"
+}
+
+Table common.drivers {
+  id bigint [pk, increment]
+  series string [not null, Note: "Auto Generated"]
+  full_name string [not null]
+  status driver_status [Note: "Simple is Active or Not Active"]
+  transporter_id bigint [ref: > buying.suppliers.id, Note: "Supplier is Transporter"]
+  cellphone_number string
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum driver_status {
+  "Active"
+  "Suspend"
+  "Left"
 }
 
 Table stock.delivery_note_has_items {
@@ -804,6 +843,30 @@ Ref: stock.priceable.model_id > buying.suppliers.id
 Table buying.suppliers {
   id bigint [pk, increment]
   name string [not null]
+  supplier_group_id bigint [ref: > buying.supplier_groups.id]
+  supplier_type supplier_type [default: "Company"]
+  allow_purchase_invoice_without_purchase_order boolean [default: 0]
+  allow_purchase_invoice_without_purchase_receipt boolean [default: 0]
+  is_transporter boolean [default: 0]
+  primary_address_id bigint [ref: - common.addressable.id]
+  primary_contact_id bigint [ref: - common.contactable.id]
+  website string [null]
+  details text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum supplier_type {
+  "Company"
+  "Individual"
+}
+
+Table buying.supplier_groups {
+  id bigint [pk, increment]
+  is_group boolean [default: 0]
+  name string [not null]
+  description text [null]
   created_at datetime [default: `now()`]
   edited_at datetime [default: `now()`]
   deleted_at datetime [null]
@@ -864,6 +927,92 @@ Table stock.item_barcodes {
 Enum barcode_type {
   "EAN"
   "UPC-A"
+}
+
+Table stock.shipments {
+  id bigint [pk, increment]
+  series string [Note: "Auto Generated"]
+  status shipment_status [default: "Draft"]
+  shipment_type shipment_type [default: "Goods"]
+  value_of_goods bigint [not null]
+  pickup_type pickup_type [default: "Pickup"]
+  pickup_date datetime [not null]
+  pickup_from timestamp [Note: "Start time pickup", not null]
+  pickup_to timestamp [Note: "End time pickup", not null]
+  description_content text [not null]
+  service_provider string [null]
+  carrier_id bigint [ref: > common.carriers.id, null]
+  carrier_service_id bigint [ref: > common.carrier_services.id, null]
+  awb_number string [null]
+  shipment_amount bigint [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum shipment_status {
+  "Draft"
+  "Submited"
+  "Booked"
+  "Cancelled"
+  "Completed"
+}
+
+Table common.carriers {
+  id bigint [pk, increment]
+  name string [not null]
+  abb string [not null, Note: "Only Character"]
+  description text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table common.carrier_services {
+  id bigint [pk, increment]
+  carriers_id bigint [ref: - common.carriers.id]
+  name string [not null]
+  abb string [not null, Note: "Only Character"]
+  description text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum pickup_type {
+  "Pickup"
+  "Self Delivery"
+}
+
+Enum shipment_type {
+  "Goods"
+  "Documents"
+}
+
+Table stock.pickupable [Note: '''
+    **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
+  '''] {
+  shipment_id bigint [ref: > stock.shipments.id]
+  model_id bigint
+  model_type shippable_model
+  addressable_id bigint [ref: > common.addressable.id]
+  contactable_id bigint [ref: > common.contactable.id]
+}
+
+Table stock.deliveryable [Note: '''
+    **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
+  '''] {
+  shipment_id bigint [ref: > stock.shipments.id]
+  model_id bigint
+  model_type shippable_model
+  addressable_id bigint [ref: > common.addressable.id]
+  contactable_id bigint [ref: > common.contactable.id]
+}
+
+Enum shippable_model {
+  "Company"
+  "Customer"
+  "Supplier"
 }
 
 Table accounting.payment_terms_templates {
