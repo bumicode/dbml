@@ -585,17 +585,122 @@ Table stock.material_requests {
   deleted_at datetime [null]
 }
 
-Table stock.material_request_item {
+Table stock.material_request_has_item {
   id bigint [pk, increment]
-  material_request_id bigint [ref: > stock.material_requests.id]
+  material_request_id bigint [ref: > stock.material_requests.id, not null]
   item_id bigint [ref: > stock.items.id, not null]
   required_by datetime [not null]
   qty integer [not null]
   warehouse_target_id bigint [ref: > stock.warehouses.id, null]
-  item_uom_id bigint [ref: > stock.item_has_oums.id]
+  item_uom_id bigint [ref: > stock.item_has_oums.id, not null]
   created_at datetime [default: `now()`]
   edited_at datetime [default: `now()`]
   deleted_at datetime [null]
+}
+
+Table stock.stock_entries {
+  id bigint [pk, increment]
+  stock_entry_type bigint [ref: > stock.entry_types.id, not null]
+  posting_date datetime [default: `now()`]
+  warehouse_source_id bigint [ref: > stock.warehouses.id, null]
+  total_outgoing_value bigint [not null]
+  total_incoming_value bigint [not null]
+  total_value bigint [Note: "Incoming - Outgoing", not null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.stock_entrie_has_item {
+  id bigint [pk, increment]
+  stock_entrie_id bigint [ref: > stock.stock_entries.id, not null]
+  item_id bigint [ref: > stock.items.id, not null]
+  warehouse_target_id bigint [ref: > stock.warehouses.id, not null]
+  warehouse_source_id bigint [ref: > stock.warehouses.id, null]
+  qty integer [not null]
+  item_uom_id bigint [ref: > stock.item_has_oums.id, not null]
+  basic_rate bigint [Note: "Basic Rate as per stock UOM"]
+  basic_amount bigint [Note: "Qty x Basic Rate"]
+  additional_cost bigint [default: 0]
+  amount bigint [default: 0]
+  valuation_rate bigint [default: 0]
+  account_id bigint [Note: "REFERENCE NOT SET"]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.entry_types {
+  id bigint [pk, increment]
+  name string [not null]
+  purpose entry_type_purpose [not null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum entry_type_purpose {
+  "Material Issue"
+  "Material Receipt"
+  "Material Transfer"
+  "Material Transfer for Manufacture"
+  "Material Consumption for Manufacture"
+  "Manufacture"
+  "Repack"
+  "Send to Subcontractor"
+}
+
+Table stock.delivery_notes {
+  id bigint [pk, increment]
+  customer_id bigint [ref: > selling.customers.id]
+  posting_date datetime [default: `now()`]
+  address_id bigint [ref: > common.addressable.id, not null]
+  contact_id bigint [ref: > common.contactable.id, not null]
+  total_qty integer [not null]
+  total_net_weight integer [not null]
+  total_amount bigint [not null]
+  tax_category bigint [Note: "REFERENCE NOT SET"]
+  sales_tax_charge_template bigint [Note: "REFERENCE NOT SET"]
+  total_tax_charge bigint [not null]
+  grand_total bigint [not null]
+  rounding_adjustment bigint [null]
+  rounded_total bigint [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.delivery_note_has_items {
+  id bigint [pk, increment]
+  delivery_note_id bigint [ref: > stock.delivery_notes.id, not null]
+  item_id bigint [ref: > stock.items.id, not null]
+  qty integer [not null]
+  item_uom_id bigint [ref: > stock.item_has_oums.id]
+  rate integer [not null]
+  amount integer [not null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.delivery_note_has_taxes {
+  id bigint [pk, increment]
+  type tax_and_charge  [not null]
+  account_id bigint [Note: "REFERENCE NOT SET"]
+  rate integer [default: 0]
+  amount bigint [default: 0]
+  total bigint [default: 0]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum tax_and_charge {
+  "Actual"
+  "On Net Total"
+  "On Previous Row Amount"
+  "On Previous Row Total"
+  "On Item Quantity"
 }
 
 Table accounting.pricing_rules {
