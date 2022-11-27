@@ -9,7 +9,7 @@ Project bumicode_erp {
     - Gunakan **[Fitur Diskusi](https://github.com/bumicode/erp/discussions)** untuk berbagi ide dan sebagainya  
       
         
-        code with ❤ bumicode
+        code with ❤ from sukabumi
   '''
 }
 
@@ -558,6 +558,135 @@ Table stock.priceable [Note: '''
   model_id bigint
   model_type model_priceable
 }
+
+Table stock.product_bundles [Note: "Bundle Item"] {
+  id bigint [pk, increment]
+  parent_item_id bigint [ref: > stock.items.id]
+  description text [null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.packing_lists [Note: "Product Bundle Has Items"] {
+  product_bundles_id bigint [ref: <> stock.product_bundles.id]
+  item_id bigint [ref: <> stock.items.id]
+}
+
+Table stock.material_requests {
+  id bigint [pk, increment]
+  series string [not null]
+  purpose material_request_type
+  transaction_date datetime [default: `now()`]
+  required_by datetime [null]
+  warehouse_target_id bigint [ref: > stock.warehouses.id, null]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table stock.material_request_item {
+  id bigint [pk, increment]
+  material_request_id bigint [ref: > stock.material_requests.id]
+  item_id bigint [ref: > stock.items.id, not null]
+  required_by datetime [not null]
+  qty integer [not null]
+  warehouse_target_id bigint [ref: > stock.warehouses.id, null]
+  item_uom_id bigint [ref: > stock.item_has_oums.id]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Table accounting.pricing_rules {
+  id bigint [pk, increment]
+  is_disabled boolean [default: 0]
+  series string [not null, Note: "Auto Generate"]
+  title string [not null]
+  rules_for pricing_rules [default: "Item Code"]
+  discount_type pricing_rule_discount_type
+  warehouse_id bigint [ref: > stock.warehouses.id, null]
+  pricing_rule_target pricing_rule_target
+  min_qty integer [default: 0]
+  max_qty integer [null]
+  min_amt bigint [default: 0]
+  max_amt bigint [null]
+  valid_from datetime [default: `now()`]
+  valid_upto datetime [null]
+  margin_type margin_type [default: "Percentage"] 
+  margin bigint [default: 0, Note: "Percentage in %, Amount in number"]
+  discount_scheme_type discount_scheme_type 
+  discount bigint [default: 0, Note: "Percentage in %, Amount and Rate in number"]
+  priority integer [default: 1, Note: "Higher number higher priority"]
+  created_at datetime [default: `now()`]
+  edited_at datetime [default: `now()`]
+  deleted_at datetime [null]
+}
+
+Enum discount_scheme_type {
+  "Rate"
+  "Discount Percentage"
+  "Discount Amount"
+}
+
+Enum margin_type {
+  "Percentage"
+  "Amount"
+}
+
+Table accounting.pricing_rule_targetable [Note: '''
+    **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
+  '''] {
+  pricing_rule_id bigint [ref: > accounting.pricing_rules.id]
+  model_id bigint
+  model_type pricing_rule_targetable_model
+}
+
+Enum pricing_rule_targetable_model {
+  "Seliing:Customer"
+  "Selling:Customer Group"
+  "Selling:Territorie"
+  "Selling:Sales Partner"
+  "Selling:Campaign"
+  "Buying:Supplier"
+  "Buying:Supplier Group"
+}
+
+Enum pricing_rule_target {
+  "Selling"
+  "Buying"
+}
+
+Enum pricing_rule_discount_type {
+  "Price"
+  "Product"
+}
+
+Enum pricing_rules {
+  "Item Code"
+  "Item Group"
+  "Brand"
+  "Transaction"
+}
+
+Table accounting.applied_rules [Note: '''
+    **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
+  '''] {
+  pricing_rule_id bigint [ref: > accounting.pricing_rules.id]
+  model_id bigint
+  model_type applied_rules_model
+  uom_item_id bigint [ref: > stock.item_has_oums.id]
+}
+
+Enum applied_rules_model {
+  "Item"
+  "Item Group"
+  "Brand"
+}
+
+Ref: accounting.applied_rules.model_id > stock.items.id
+Ref: accounting.applied_rules.model_id > stock.item_groups.id
+Ref: accounting.applied_rules.model_id > stock.brands.id
 
 Enum model_priceable {
   "Customer"
