@@ -7,6 +7,7 @@ Project bumicode_erp {
     - Source Code bisa dilihat di **[Repository Github](https://github.com/bumicode/erp)**  
     - Wiki Aplikasi bisa dilihat di bagian **[Wiki Repository Github](https://github.com/bumicode/erp/wiki)**  
     - Gunakan **[Fitur Diskusi](https://github.com/bumicode/erp/discussions)** untuk berbagi ide dan sebagainya  
+    - Riwayat Commit untuk dokumentasi ini bisa dilihat di **[Repository Github](https://github.com/bumicode/dbml/commits/master/bumicode/erp.dbml)**  
       
         
         code with ❤ from sukabumi
@@ -1242,6 +1243,155 @@ Table selling.quotation_has_items {
 Table selling.quotation_has_taxes_charges {
   id bigint [pk, increment]
   quotation_id bigint [ref: - selling.quotations.id]
+  type tax_and_charge [not null]
+  account_id bigint [Note: "REFERENCE NOT SET"]
+  rate integer [default: 0]
+  amount bigint [default: 0]
+  total bigint [default: 0]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table selling.sales_orders {
+  id bigint [pk, increment]
+  series string [not null]
+  status sales_order_status [default: "Draft"]
+  delivery_status order_delivery_status [default: "Not Delivered"] 
+  billed_status order_billed_status [default: "Not Billed"] 
+  posting_date timestamptz [default: `now()`]
+  delivery_date timestamptz [null]
+  order_type sales_order_type
+  customer_id bigint [ref: > selling.customers.id]
+  customer_address_id bigint [ref: > common.addressable.id, not null]
+  customer_contact_id bigint [ref: > common.contactable.id, not null]
+  customer_shipping_address_id bigint [ref: > common.addressable.id, null]
+  total_qty integer [not null]
+  total_net_weight integer [not null]
+  total_amount bigint [not null]
+  tax_category bigint [Note: "REFERENCE NOT SET"]
+  sales_tax_charge_template bigint [Note: "REFERENCE NOT SET"]
+  total_tax_charge bigint [not null]
+  grand_total bigint [not null]
+  rounding_adjustment bigint [null]
+  rounded_total bigint [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table selling.sales_order_has_items {
+  id bigint [pk, increment]
+  sales_order_id bigint [ref: - selling.sales_orders.id]
+  item_id bigint [ref: > stock.items.id]
+  warehouse_source_id bigint [ref: > stock.warehouses.id, not null, Note: "Default same with item warehouse"]
+  rate bigint [default: 0, Note: "Default price for default uom items"]
+  amount bigint [default: 0, Note: "Accepted Qty * Rate"]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table selling.sales_order_has_taxes_charges {
+  id bigint [pk, increment]
+  sales_order_id bigint [ref: - selling.sales_orders.id]
+  type tax_and_charge [not null]
+  account_id bigint [Note: "REFERENCE NOT SET"]
+  rate integer [default: 0]
+  amount bigint [default: 0]
+  total bigint [default: 0]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Enum delivery_status {
+  "Not Delivered"
+  "Fully Delivered"
+  "Partly Delivered"
+  "Closed"
+  "Not Applicable"
+}
+
+Enum order_billed_status {
+  "Not Billed"
+  "Fully Billed"
+  "Partly Billed"
+  "Closed"
+}
+
+Enum sales_order_status {
+  "Draft"
+  "On Hold"
+  "To Deliver and Bill"
+  "To Bill"
+  "To Deliver"
+  "Completed"
+  "Cancelled"
+  "Closed"
+}
+
+Enum sales_order_type {
+  "Sales"
+  "Maintenance"
+  "Shopping Chart"
+}
+
+Table selling.sales_invoices {
+  id bigint [pk, increment]
+  series string [not null]
+  status sales_invoice_status [default: "Draft"]
+  posting_date timestamptz [default: `now()`]
+  payment_due_date timestamptz
+  customer_id bigint [ref: > selling.customers.id]
+  customer_address_id bigint [ref: > common.addressable.id, not null]
+  customer_contact_id bigint [ref: > common.contactable.id, not null]
+  customer_shipping_address_id bigint [ref: > common.addressable.id, null]
+  total_qty integer [not null]
+  total_net_weight integer [not null]
+  total_amount bigint [not null]
+  tax_category bigint [Note: "REFERENCE NOT SET"]
+  sales_tax_charge_template bigint [Note: "REFERENCE NOT SET"]
+  total_tax_charge bigint [not null]
+  grand_total bigint [not null]
+  rounding_adjustment bigint [null]
+  rounded_total bigint [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Enum sales_invoice_status {
+  "Draft"
+  "Return"
+  "Credit Note Issued"
+  "Submitted"
+  "Paid"
+  "Partly Paid"
+  "Unpaid"
+  "Unpaid and Discounted"
+  "Partly Paid and Discounted"
+  "Overdue and Discounted"
+  "Overdue"
+  "Cancelled"
+  "Internal Transfer"
+}
+
+Table selling.sales_invoice_has_items {
+  id bigint [pk, increment]
+  sales_invoice_id bigint [ref: - selling.sales_invoices.id]
+  item_id bigint [ref: > stock.items.id]
+  warehouse_source_id bigint [ref: > stock.warehouses.id, not null, Note: "Default same with item warehouse"]
+  rate bigint [default: 0, Note: "Default price for default uom items"]
+  amount bigint [default: 0, Note: "Accepted Qty * Rate"]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table selling.sales_invoice_has_taxes_charges {
+  id bigint [pk, increment]
+  sales_invoice_id bigint [ref: - selling.sales_invoices.id]
   type tax_and_charge [not null]
   account_id bigint [Note: "REFERENCE NOT SET"]
   rate integer [default: 0]
