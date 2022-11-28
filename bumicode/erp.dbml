@@ -742,6 +742,67 @@ Enum tax_and_charge {
   "On Item Quantity"
 }
 
+Table stock.purchase_receipts {
+  id bigint [pk, increment]
+  status purchase_receipt_status [default: "Draft"]
+  series string [Note: "Auto Generated", not null]
+  supplier_id bigint [ref: > buying.suppliers.id, not null]
+  supplier_delivery_note string [null]
+  posting_date timestamptz [default: `now`]
+  supplier_address bigint [ref: > common.addressable.id, null]
+  supplier_contact bigint [ref: > common.contactable.id, null]
+  shipping_address bigint [ref: > common.addressable.id, null]
+  billing_address bigint [ref: > common.addressable.id, null]
+  total_qty integer [not null]
+  total_net_weight integer [not null]
+  total_amount bigint [not null]
+  tax_category bigint [Note: "REFERENCE NOT SET"]
+  sales_tax_charge_template bigint [Note: "REFERENCE NOT SET"]
+  total_tax_charge bigint [not null]
+  grand_total bigint [not null]
+  rounding_adjustment bigint [null]
+  rounded_total bigint [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Enum purchase_receipt_status {
+  "Draft"
+  "To Bill"
+  "Completed"
+  "Return Issued"
+  "Cancelled"
+  "Closed"
+}
+
+Table stock.purchase_receipt_has_items {
+  id bigint [pk, increment]
+  purchase_receipt_id bigint [ref: - stock.purchase_receipts.id]
+  item_id bigint [ref: > stock.items.id]
+  warehouse_accepted_id bigint [ref: > stock.warehouses.id, not null, Note: "Default same with item warehouse"]
+  warehouse_rejected_id bigint [ref: > stock.warehouses.id, null]
+  accepted_qty integer [default: 0]
+  rejected_qty integer [default: 0]
+  rate bigint [default: 0, Note: "Default price for default uom items"]
+  amount bigint [default: 0, Note: "Accepted Qty * Rate"]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table stock.purchase_receipt_has_taxes_charges {
+  id bigint [pk, increment]
+  type tax_and_charge [not null]
+  account_id bigint [Note: "REFERENCE NOT SET"]
+  rate integer [default: 0]
+  amount bigint [default: 0]
+  total bigint [default: 0]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
 Table accounting.pricing_rules {
   id bigint [pk, increment]
   is_disabled boolean [default: 0]
