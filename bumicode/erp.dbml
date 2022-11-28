@@ -18,29 +18,29 @@ Table users as U {
   slug string
   name string
   email string
-  email_verified_at timestamp [null]
+  email_verified_at timestamptz [null]
   is_active boolean [default: true]
-  created_at timestamp
-  updated_at timestamp
-  deleted_at timestamp
+  created_at timestamptz
+  updated_at timestamptz
+  deleted_at timestamptz
 }
 
 Table roles {
   id bigint [pk, increment]
   name string
   description text
-  created_at timestamp
-  updated_at timestamp
-  deleted_at timestamp
+  created_at timestamptz
+  updated_at timestamptz
+  deleted_at timestamptz
 }
 
 Table permissions {
   id bigint [pk, increment]
   name string
   description text
-  created_at timestamp
-  updated_at timestamp
-  deleted_at timestamp
+  created_at timestamptz
+  updated_at timestamptz
+  deleted_at timestamptz
 }
 
 Table role_has_permission {
@@ -70,9 +70,9 @@ Table crm.leads {
   city string [null]
   state string [null]
   country string [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum leads_status {
@@ -104,25 +104,25 @@ Table crm.lead_sources {
   id bigint [pk, increment]
   name string [not null]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table crm.saluations {
   id bigint [pk, increment]
   name string [not null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table crm.genders {
   id bigint [pk, increment]
   name string [not null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table common.addresses {
@@ -143,9 +143,9 @@ Table common.addresses {
   phone string [null]
   fax string [null]
   tax_category bigint
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum address_type {
@@ -207,9 +207,9 @@ Table common.contacts {
   gender_id bigint [ref: - crm.genders.id, null]
   mobile_no string [null]
   company_name string [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum contact_status {
@@ -248,9 +248,9 @@ Table common.emails {
   id bigint [pk, increment]
   email string [not null]
   is_primary boolean [default: 0]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table common.contact_has_email {
@@ -263,9 +263,9 @@ Table common.numbers {
   number string [not null]
   is_primary_phone boolean [default: 0]
   is_primary_mobile boolean [default: 0]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table common.contact_has_numbers {
@@ -275,7 +275,7 @@ Table common.contact_has_numbers {
 
 Table crm.opportunity {
   id bigint [pk, increment]
-  opportunity_date datetime [default: `now()`]
+  opportunity_date timestamptz [default: `now()`]
   model_id bigint
   model_type opportunity_model_type [Note: "Opportunity From"]
   status opportunity_status
@@ -285,9 +285,9 @@ Table crm.opportunity {
   sales_stage_id bigint [ref: - crm.sales_stages.id]
   expected_closing_date date [null]
   probability integer [default: 100]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum opportunity_model_type {
@@ -309,17 +309,17 @@ Table crm.opportunity_types {
   id bigint [pk, increment]
   name string [not null]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table crm.sales_stages {
   id bigint [pk, increment]
   name status [not null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table crm.organizations {
@@ -330,9 +330,9 @@ Table crm.organizations {
   industry bigint [ref: - crm.industries.id]
   market_segment bigint [ref: - crm.market_segments.id]
   territory_id bigint [ref: - selling.territories.id]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum organizations_no_employees {
@@ -347,17 +347,17 @@ Enum organizations_no_employees {
 Table crm.industries {
   id bigint [pk, increment]
   name string
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table crm.market_segments {
   id bigint [pk, increment]
   name string
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table crm.organizationable [Note: '''
@@ -380,9 +380,9 @@ Ref: crm.organizationable.model_id > crm.opportunity.id
 Table crm.prospects {
   id bigint [pk, increment]
   customer_group bigint [ref: > selling.customer_groups.id, null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table selling.customers {
@@ -402,9 +402,9 @@ Table selling.customers {
   from_opportunity bigint [ref: - crm.opportunity.id, null]
   primary_contact_id bigint [null, ref: - common.contactable.id]
   primary_address_id bigint [null, ref: - common.addressable.id]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum selling.customer_type {
@@ -419,18 +419,18 @@ Table selling.customer_groups {
   parent_id bigint [ref: > selling.customer_groups.id, null]
   default_price_list_id bigint [ref: > stock.price_lists.id, null]
   default_payment_terms_template bigint [ref: > accounting.payment_terms_templates.id, null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table selling.credit_limits {
   id bigint [pk, increment]
   customer_group_id bigint [ref: - selling.customer_groups.id]
   credit_limit bigint
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.price_lists {
@@ -438,9 +438,9 @@ Table stock.price_lists {
   name string [not null]
   is_buying boolean [default: 0]
   is_selling boolean [default: 0]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.items {
@@ -456,9 +456,9 @@ Table stock.items {
   item_group_id bigint [ref: > stock.item_groups.id]
   default_uom bigint [ref: - stock.item_has_oums.id]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum item_status {
@@ -471,17 +471,17 @@ Table stock.item_groups {
   name string [not null]
   parent_id bigint [ref: > stock.item_groups.id]
   is_group boolean [default: 0]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.uoms {
   id bigint [pk, increment]
   is_enable boolean [default: 1]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.warehouses {
@@ -492,27 +492,27 @@ Table stock.warehouses {
   name string [not null]
   parent_id bigint [ref: > stock.warehouses.id, null]
   warehouse_account bigint [Note: "REFERENCE NOT SET", null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.warehouse_types {
   id bigint [pk, increment]
   name string [not null]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.brands {
   id bigint [pk, increment]
   name string [not null]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.item_attributes {
@@ -529,9 +529,9 @@ Table stock.item_attributes {
       }
     ]
   ''']
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.item_has_attributes {
@@ -549,12 +549,12 @@ Table stock.item_prices {
   price_list_id bigint [ref: > stock.price_lists.id]
   batch_no bigint [Note: "REFERENCE NOT SET"]
   rate bigint [Note: "Harga"]
-  valid_from datetime [default: `now()`]
-  valid_upto datetime [null]
+  valid_from timestamptz [default: `now()`]
+  valid_upto timestamptz [null]
   note text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.priceable [Note: '''
@@ -569,9 +569,9 @@ Table stock.product_bundles [Note: "Bundle Item"] {
   id bigint [pk, increment]
   parent_item_id bigint [ref: > stock.items.id]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.packing_lists [Note: "Product Bundle Has Items"] {
@@ -583,38 +583,38 @@ Table stock.material_requests {
   id bigint [pk, increment]
   series string [not null]
   purpose material_request_type
-  transaction_date datetime [default: `now()`]
-  required_by datetime [null]
+  transaction_date timestamptz [default: `now()`]
+  required_by timestamptz [null]
   warehouse_target_id bigint [ref: > stock.warehouses.id, null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.material_request_has_item {
   id bigint [pk, increment]
   material_request_id bigint [ref: > stock.material_requests.id, not null]
   item_id bigint [ref: > stock.items.id, not null]
-  required_by datetime [not null]
+  required_by timestamptz [not null]
   qty integer [not null]
   warehouse_target_id bigint [ref: > stock.warehouses.id, null]
   item_uom_id bigint [ref: > stock.item_has_oums.id, not null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.stock_entries {
   id bigint [pk, increment]
   stock_entry_type bigint [ref: > stock.entry_types.id, not null]
-  posting_date datetime [default: `now()`]
+  posting_date timestamptz [default: `now()`]
   warehouse_source_id bigint [ref: > stock.warehouses.id, null]
   total_outgoing_value bigint [not null]
   total_incoming_value bigint [not null]
   total_value bigint [Note: "Incoming - Outgoing", not null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.stock_entrie_has_item {
@@ -631,18 +631,18 @@ Table stock.stock_entrie_has_item {
   amount bigint [default: 0]
   valuation_rate bigint [default: 0]
   account_id bigint [Note: "REFERENCE NOT SET"]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.entry_types {
   id bigint [pk, increment]
   name string [not null]
   purpose entry_type_purpose [not null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum entry_type_purpose {
@@ -660,7 +660,7 @@ Table stock.delivery_notes {
   id bigint [pk, increment]
   status delivery_note_status [default: "Draft"]
   customer_id bigint [ref: > selling.customers.id]
-  posting_date datetime [default: `now()`]
+  posting_date timestamptz [default: `now()`]
   address_id bigint [ref: > common.addressable.id, not null]
   contact_id bigint [ref: > common.contactable.id, not null]
   total_qty integer [not null]
@@ -675,11 +675,11 @@ Table stock.delivery_notes {
   transporter_id bigint [ref: > buying.suppliers.id, Note: "Supplier is Transporter"]
   driver_id bigint [ref: > common.drivers.id]
   transport_receipt_no string [null]
-  transport_receipt_date datetime
+  transport_receipt_date timestamptz
   vehincle_no string [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum delivery_note_status {
@@ -698,9 +698,9 @@ Table common.drivers {
   status driver_status [Note: "Simple is Active or Not Active"]
   transporter_id bigint [ref: > buying.suppliers.id, Note: "Supplier is Transporter"]
   cellphone_number string
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum driver_status {
@@ -717,9 +717,9 @@ Table stock.delivery_note_has_items {
   item_uom_id bigint [ref: > stock.item_has_oums.id]
   rate integer [not null]
   amount integer [not null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.delivery_note_has_taxes {
@@ -729,9 +729,9 @@ Table stock.delivery_note_has_taxes {
   rate integer [default: 0]
   amount bigint [default: 0]
   total bigint [default: 0]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum tax_and_charge {
@@ -755,16 +755,16 @@ Table accounting.pricing_rules {
   max_qty integer [null]
   min_amt bigint [default: 0]
   max_amt bigint [null]
-  valid_from datetime [default: `now()`]
-  valid_upto datetime [null]
+  valid_from timestamptz [default: `now()`]
+  valid_upto timestamptz [null]
   margin_type margin_type [default: "Percentage"] 
   margin bigint [default: 0, Note: "Percentage in %, Amount in number"]
   discount_scheme_type discount_scheme_type 
   discount bigint [default: 0, Note: "Percentage in %, Amount and Rate in number"]
   priority integer [default: 1, Note: "Higher number higher priority"]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum discount_scheme_type {
@@ -852,9 +852,9 @@ Table buying.suppliers {
   primary_contact_id bigint [ref: - common.contactable.id]
   website string [null]
   details text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum supplier_type {
@@ -867,9 +867,9 @@ Table buying.supplier_groups {
   is_group boolean [default: 0]
   name string [not null]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.item_inventories {
@@ -877,15 +877,15 @@ Table stock.item_inventories {
   item_id bigint [ref: - stock.items.id, not null]
   shelf_life_in_days integer [null]
   warranty_period integer [null]
-  end_of_life datetime [not null]
+  end_of_life timestamptz [not null]
   weight_per_unit integer [null]
   weight_uom bigint [ref: - stock.item_has_oums.id, Note: "Default UOM Item"]
   default_material_request_type material_request_type [default: "Purchase"]
   valuation_method valuation_method [default: "", null]
   allow_negative_stock boolean [default: 0]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum material_request_type {
@@ -908,9 +908,9 @@ Table stock.item_has_oums {
   item_id bigint [ref: > stock.items.id, not null]
   uom_id bigint [ref: > stock.uoms.id, not null]
   conversion_factor integer
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table stock.item_barcodes {
@@ -919,9 +919,9 @@ Table stock.item_barcodes {
   uom_id bigint [ref: > stock.item_has_oums.id, not null]
   barcode string [not null]
   barcode_type barcode_type [not null] 
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum barcode_type {
@@ -936,18 +936,18 @@ Table stock.shipments {
   shipment_type shipment_type [default: "Goods"]
   value_of_goods bigint [not null]
   pickup_type pickup_type [default: "Pickup"]
-  pickup_date datetime [not null]
-  pickup_from timestamp [Note: "Start time pickup", not null]
-  pickup_to timestamp [Note: "End time pickup", not null]
+  pickup_date timestamptz [not null]
+  pickup_from timestamptz [Note: "Start time pickup", not null]
+  pickup_to timestamptz [Note: "End time pickup", not null]
   description_content text [not null]
   service_provider string [null]
   carrier_id bigint [ref: > common.carriers.id, null]
   carrier_service_id bigint [ref: > common.carrier_services.id, null]
   awb_number string [null]
   shipment_amount bigint [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum shipment_status {
@@ -963,9 +963,9 @@ Table common.carriers {
   name string [not null]
   abb string [not null, Note: "Only Character"]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table common.carrier_services {
@@ -974,9 +974,9 @@ Table common.carrier_services {
   name string [not null]
   abb string [not null, Note: "Only Character"]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum pickup_type {
@@ -1018,9 +1018,9 @@ Enum shippable_model {
 Table accounting.payment_terms_templates {
   id bigint [pk, increment]
   name string [not null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table accounting.payment_terms_template_has_payment_terms {
@@ -1035,9 +1035,9 @@ Table accounting.payment_terms {
   due_date_base due_date_base [default: "Day(s) after invoice date"]
   credit_days integer [not null, default: 0]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Enum due_date_base {
@@ -1052,9 +1052,9 @@ Table company.companies {
   parent_id bigint [ref: < company.companies.id]
   is_group boolean [default: 0]
   description text [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table company.settings {
@@ -1065,9 +1065,9 @@ Table selling.territories {
   id bigint [pk, increment]
   parent_id bigint [ref: > selling.territories.id, null]
   territory_manager_id bigint [ref: > selling.sales_persons.id]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table selling.sales_persons {
@@ -1078,9 +1078,9 @@ Table selling.sales_persons {
   employee bigint [Note: "REFERENCE NOT SET"]
   parent_id bigint [ref: > selling.sales_persons.id]
   commision_rate integer [null]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table selling.sales_person_has_targets {
@@ -1090,9 +1090,9 @@ Table selling.sales_person_has_targets {
   target_qty integer [default: 0]
   target_amount bigint [default: 0]
   target_distribution_id bigint [Note: "REFERENCE NOT SET"]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table selling.territory_has_targets {
@@ -1102,9 +1102,9 @@ Table selling.territory_has_targets {
   target_qty integer [default: 0]
   target_amount bigint [default: 0]
   target_distribution_id bigint [Note: "REFERENCE NOT SET"]
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
 
 Table common.status [Note: "Opsional bila status dimasukkan kedalam database"] {
@@ -1112,7 +1112,7 @@ Table common.status [Note: "Opsional bila status dimasukkan kedalam database"] {
   name string
   model_id bigint
   model_type string
-  created_at datetime [default: `now()`]
-  edited_at datetime [default: `now()`]
-  deleted_at datetime [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
 }
