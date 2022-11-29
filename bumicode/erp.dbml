@@ -14,7 +14,7 @@ Project bumicode_erp {
   '''
 }
 
-Table users as U {
+Table users{
   id bigint [pk, increment]
   slug varchar
   name varchar
@@ -24,6 +24,7 @@ Table users as U {
   created_at timestamptz
   updated_at timestamptz
   deleted_at timestamptz
+  Note: "Data pengguna"
 }
 
 Table roles {
@@ -33,6 +34,7 @@ Table roles {
   created_at timestamptz
   updated_at timestamptz
   deleted_at timestamptz
+  Note: "Data Peran (Roles)"
 }
 
 Table permissions {
@@ -42,16 +44,19 @@ Table permissions {
   created_at timestamptz
   updated_at timestamptz
   deleted_at timestamptz
+  Note: "Data Akses / Izin (Permissions)"
 }
 
 Table role_has_permission {
   role_id bigint [ref:  <> roles.id]
   permission_id bigint [ref:  <> permissions.id]
+  Note: "Authorization - What Permissions do you have ?"
 }
 
 Table model_has_role {
   user_id bigint [ref: <> users.id]
   role_id bigint [ref: <> roles.id]
+  Note: "Authentication - Who are you ?"
 }
 
 Table crm.leads {
@@ -1411,4 +1416,85 @@ Table common.status [Note: "Opsional bila status dimasukkan kedalam database"] {
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
+}
+
+TableGroup accounting {
+  accounting.pricing_rules
+  accounting.pricing_rule_targetable
+  accounting.applied_rules
+  accounting.payment_terms
+  accounting.payment_terms_templates
+  accounting.ptt_has_pts
+}
+
+TableGroup buying {
+  buying.suppliers
+  buying.supplier_groups
+}
+
+TableGroup crm {
+  crm.genders
+  crm.industries
+  crm.leads
+  crm.lead_sources
+  crm.market_segments
+  crm.opportunity
+  crm.opportunity_types
+  crm.organizationable
+  crm.prospects
+  crm.sales_stages
+  crm.saluations
+}
+
+TableGroup selling {
+    selling.customers
+    selling.customer_groups
+    selling.credit_limits
+    selling.quotations
+    selling.quotationable
+    selling.quotation_has_items
+    selling.quotation_has_taxes_charges
+    selling.sales_persons
+    selling.sales_person_has_targets
+    selling.sales_invoices
+    selling.sales_invoice_has_items
+    selling.sales_invoice_has_taxes_charges
+    selling.sales_orders
+    selling.sales_order_has_items
+    selling.sales_order_has_taxes_charges
+    selling.territories
+    selling.territory_has_targets
+}
+
+TableGroup stock {
+  stock.brands
+  stock.deliveryable
+  stock.delivery_notes
+  stock.delivery_note_has_items
+  stock.delivery_note_has_taxes
+  stock.entry_types
+  stock.items
+  stock.item_attributes
+  stock.item_barcodes
+  stock.item_groups
+  stock.item_has_oums
+  stock.item_inventories
+  stock.item_has_attributes
+  stock.item_prices
+  stock.material_requests
+  stock.material_request_has_item
+  stock.stock_entries
+  stock.stock_entrie_has_item
+  stock.packing_lists
+  stock.purchase_receipts
+  stock.purchase_receipt_has_items
+  stock.purchase_receipt_has_taxes_charges
+  stock.priceable
+  stock.price_lists
+  stock.product_bundles
+  stock.shipments
+  stock.pickupable
+  stock.uoms
+  stock.warehouses 
+  stock.warehouse_types
 }
