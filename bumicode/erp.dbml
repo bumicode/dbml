@@ -16,9 +16,9 @@ Project bumicode_erp {
 
 Table users as U {
   id bigint [pk, increment]
-  slug string
-  name string
-  email string
+  slug varchar
+  name varchar
+  email varchar
   email_verified_at timestamptz [null]
   is_active boolean [default: true]
   created_at timestamptz
@@ -28,7 +28,7 @@ Table users as U {
 
 Table roles {
   id bigint [pk, increment]
-  name string
+  name varchar
   description text
   created_at timestamptz
   updated_at timestamptz
@@ -37,7 +37,7 @@ Table roles {
 
 Table permissions {
   id bigint [pk, increment]
-  name string
+  name varchar
   description text
   created_at timestamptz
   updated_at timestamptz
@@ -56,21 +56,21 @@ Table model_has_role {
 
 Table crm.leads {
   id bigint [pk, increment]
-  series string [not null]
+  series varchar [not null]
   saluation bigint [ref: - crm.saluations.id, null]
-  job_title string [null]
+  job_title varchar [null]
   lead_owner bigint [ref: - users.id, null]
   gender bigint [ref: - crm.genders.id, null]
-  first_name string [not null]
-  middle_name string [null]
-  last_name string [null]
+  first_name varchar [not null]
+  middle_name varchar [null]
+  last_name varchar [null]
   lead_source bigint [ref: - crm.lead_sources.id, null]
   status leads_status [null]
   lead_type lead_type [null]
   request_type request_type [null]
-  city string [null]
-  state string [null]
-  country string [null]
+  city varchar [null]
+  state varchar [null]
+  country varchar [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -103,7 +103,7 @@ Enum request_type {
 
 Table crm.lead_sources {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   description text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -112,7 +112,7 @@ Table crm.lead_sources {
 
 Table crm.saluations {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -120,7 +120,7 @@ Table crm.saluations {
 
 Table crm.genders {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -128,21 +128,21 @@ Table crm.genders {
 
 Table common.addresses {
   id bigint [pk, increment]
-  is_preferred_billing_address boolean [default: 0]
-  is_preferred_shipping_address boolean [default: 0]
-  is_disabled boolean [default: 0]
-  title string [not null]
+  is_preferred_billing_address boolean [default: FALSE]
+  is_preferred_shipping_address boolean [default: FALSE]
+  is_disabled boolean [default: FALSE]
+  title varchar [not null]
   address_type address_type [default: "Billing"]
-  address_line_one string [not null]
-  address_line_two string [null]
-  city string [not null]
-  district string [null]
-  state string [not null]
-  country string [null]
-  postal_code string [null]
-  email_address string [null]
-  phone string [null]
-  fax string [null]
+  address_line_one varchar [not null]
+  address_line_two varchar [null]
+  city varchar [not null]
+  district varchar [null]
+  state varchar [not null]
+  country varchar [null]
+  postal_code varchar [null]
+  email_address varchar [null]
+  phone varchar [null]
+  fax varchar [null]
   tax_category bigint
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -168,7 +168,7 @@ Table common.addressable [Note: '''
     **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
   '''] {
   id bigint [pk, increment]
-  title string [null]
+  title varchar [null]
   address_id bigint [ref: > common.addresses.id, not null]
   model_id integer [not null]
   model_type addressable_model_type [not null]
@@ -196,20 +196,20 @@ Ref: common.addressable.model_id < selling.quotations.id
 
 Table common.contacts {
   id bigint [pk, increment]
-  is_primary_contact boolean [default: 0]
-  is_billing_contact boolean [default: 0]
-  first_name string [not null]
-  middle_name string [null]
-  last_name string [null]
-  email_address string [null]
+  is_primary_contact boolean [default: FALSE]
+  is_billing_contact boolean [default: FALSE]
+  first_name varchar [not null]
+  middle_name varchar [null]
+  last_name varchar [null]
+  email_address varchar [null]
   user_id bigint [ref: - users.id, null]
   address_id bigint [ref: - common.addressable.id, null]
   status contact_status [default: "Passive"]
   saluation bigint [ref: - crm.saluations.id, null]
-  designation string [null]
+  designation varchar [null]
   gender_id bigint [ref: - crm.genders.id, null]
-  mobile_no string [null]
-  company_name string [null]
+  mobile_no varchar [null]
+  company_name varchar [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -225,7 +225,7 @@ Table common.contactable [Note: '''
     **Menggunakan [Skema Polymorphic](https://laravel.com/docs/9.x/eloquent-relationships#polymorphic-relationships)**
   '''] {
   id bigint [pk, increment]
-  title string [null]
+  title varchar [null]
   contact_id bigint [ref: > common.contacts.id]
   model_id bigint
   model_type contactable_model_type
@@ -251,8 +251,8 @@ Ref: common.contactable.model_id < selling.quotations.id
 
 Table common.emails {
   id bigint [pk, increment]
-  email string [not null]
-  is_primary boolean [default: 0]
+  email varchar [not null]
+  is_primary boolean [default: FALSE]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -265,9 +265,9 @@ Table common.contact_has_email {
 
 Table common.numbers {
   id bigint [pk, increment]
-  number string [not null]
-  is_primary_phone boolean [default: 0]
-  is_primary_mobile boolean [default: 0]
+  number varchar [not null]
+  is_primary_phone boolean [default: FALSE]
+  is_primary_mobile boolean [default: FALSE]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -312,7 +312,7 @@ Enum opportunity_status {
 
 Table crm.opportunity_types {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   description text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -321,7 +321,7 @@ Table crm.opportunity_types {
 
 Table crm.sales_stages {
   id bigint [pk, increment]
-  name status [not null]
+  name varchar [not null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -329,7 +329,7 @@ Table crm.sales_stages {
 
 Table crm.organizations {
   id bigint [pk, increment]
-  name string [null]
+  name varchar [null]
   no_employees organizations_no_employees [default: "1-10"]
   annual_revenue bigint [null]
   industry bigint [ref: - crm.industries.id]
@@ -351,7 +351,7 @@ Enum organizations_no_employees {
 
 Table crm.industries {
   id bigint [pk, increment]
-  name string
+  name varchar
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -359,7 +359,7 @@ Table crm.industries {
 
 Table crm.market_segments {
   id bigint [pk, increment]
-  name string
+  name varchar
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -392,17 +392,17 @@ Table crm.prospects {
 
 Table selling.customers {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   customer_group_id bigint [ref: > selling.customer_groups.id]
   default_company_bank_account bigint [null]
   customer_type customer_type [default: "Individual"]
   territory_id bigint [ref: > selling.territories.id]
   account_manager_id bigint [ref: > public.users.id]
   gender bigint [ref: - crm.genders.id, null]
-  allow_sales_invoice_creation_without_sales_order boolean [default: 0]
-  allow_sales_invoice_creation_without_delivery_note boolean [default: 0]
-  is_internal_customer boolean [default: 0]
-  is_disabled boolean [default: 0]
+  allow_sales_invoice_creation_without_sales_order boolean [default: FALSE]
+  allow_sales_invoice_creation_without_delivery_note boolean [default: FALSE]
+  is_internal_customer boolean [default: FALSE]
+  is_disabled boolean [default: FALSE]
   from_lead_id bigint [ref: - crm.leads.id, null]
   from_opportunity bigint [ref: - crm.opportunity.id, null]
   primary_contact_id bigint [null, ref: - common.contactable.id]
@@ -412,15 +412,15 @@ Table selling.customers {
   deleted_at timestamptz [null]
 }
 
-Enum selling.customer_type {
+Enum customer_type {
   "Company"
   "Individual"
 }
 
 Table selling.customer_groups {
   id bigint [pk, increment]
-  is_group boolean [default: 0]
-  name string [not null]
+  is_group boolean [default: FALSE]
+  name varchar [not null]
   parent_id bigint [ref: > selling.customer_groups.id, null]
   default_price_list_id bigint [ref: > stock.price_lists.id, null]
   default_payment_terms_template bigint [ref: > accounting.payment_terms_templates.id, null]
@@ -440,9 +440,9 @@ Table selling.credit_limits {
 
 Table stock.price_lists {
   id bigint [pk, increment]
-  name string [not null]
-  is_buying boolean [default: 0]
-  is_selling boolean [default: 0]
+  name varchar [not null]
+  is_buying boolean [default: FALSE]
+  is_selling boolean [default: FALSE]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -450,13 +450,13 @@ Table stock.price_lists {
 
 Table stock.items {
   id bigint [pk, increment]
-  is_disabled boolean [default: 0]
-  is_maintain_stock boolean [default: 1]
-  is_has_variant boolean [default: 0]
+  is_disabled boolean [default: FALSE]
+  is_maintain_stock boolean [default: TRUE]
+  is_has_variant boolean [default: FALSE]
   brand_id bigint [ref: > stock.brands.id]
   variant_of bigint [ref: > stock.items.id, null]
-  code string [not null]
-  name string [null]
+  code varchar [not null]
+  name varchar [null]
   status item_status [null]
   item_group_id bigint [ref: > stock.item_groups.id]
   default_uom bigint [ref: - stock.item_has_oums.id]
@@ -473,9 +473,9 @@ Enum item_status {
 
 Table stock.item_groups {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   parent_id bigint [ref: > stock.item_groups.id]
-  is_group boolean [default: 0]
+  is_group boolean [default: FALSE]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -483,7 +483,7 @@ Table stock.item_groups {
 
 Table stock.uoms {
   id bigint [pk, increment]
-  is_enable boolean [default: 1]
+  is_enable boolean [default: TRUE]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -491,10 +491,10 @@ Table stock.uoms {
 
 Table stock.warehouses {
   id bigint [pk, increment]
-  is_disabled boolean [default: 0]
-  is_group boolean [default: 0]
+  is_disabled boolean [default: FALSE]
+  is_group boolean [default: FALSE]
   warehouse_type_id bigint [ref: > stock.warehouse_types.id, null]
-  name string [not null]
+  name varchar [not null]
   parent_id bigint [ref: > stock.warehouses.id, null]
   warehouse_account bigint [Note: "REFERENCE NOT SET", null]
   created_at timestamptz [default: `now()`]
@@ -504,7 +504,7 @@ Table stock.warehouses {
 
 Table stock.warehouse_types {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   description text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -513,7 +513,7 @@ Table stock.warehouse_types {
 
 Table stock.brands {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   description text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -522,8 +522,8 @@ Table stock.brands {
 
 Table stock.item_attributes {
   id bigint [pk, increment]
-  name string [not null]
-  value array [not null, Note: '''
+  name varchar [not null]
+  value json [not null, Note: '''
     [
       {
         value: "Red",
@@ -546,8 +546,8 @@ Table stock.item_has_attributes {
 
 Table stock.item_prices {
   id bigint [pk, increment]
-  is_buying boolean [default: 0]
-  is_selling boolean [default: 0]
+  is_buying boolean [default: FALSE]
+  is_selling boolean [default: FALSE]
   item_id bigint [ref: > stock.items.id, not null]
   item_uom_id bigint [ref: > stock.item_has_oums.id, not null]
   packing_unit integer [default: 0]
@@ -586,7 +586,7 @@ Table stock.packing_lists [Note: "Product Bundle Has Items"] {
 
 Table stock.material_requests {
   id bigint [pk, increment]
-  series string [not null]
+  series varchar [not null]
   purpose material_request_type
   transaction_date timestamptz [default: `now()`]
   required_by timestamptz [null]
@@ -643,7 +643,7 @@ Table stock.stock_entrie_has_item {
 
 Table stock.entry_types {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   purpose entry_type_purpose [not null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -679,9 +679,9 @@ Table stock.delivery_notes {
   rounded_total bigint [null]
   transporter_id bigint [ref: > buying.suppliers.id, Note: "Supplier is Transporter"]
   driver_id bigint [ref: > common.drivers.id]
-  transport_receipt_no string [null]
+  transport_receipt_no varchar [null]
   transport_receipt_date timestamptz
-  vehincle_no string [null]
+  vehincle_no varchar [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -698,11 +698,11 @@ Enum delivery_note_status {
 
 Table common.drivers {
   id bigint [pk, increment]
-  series string [not null, Note: "Auto Generated"]
-  full_name string [not null]
+  series varchar [not null, Note: "Auto Generated"]
+  full_name varchar [not null]
   status driver_status [Note: "Simple is Active or Not Active"]
   transporter_id bigint [ref: > buying.suppliers.id, Note: "Supplier is Transporter"]
-  cellphone_number string
+  cellphone_number varchar
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -750,10 +750,10 @@ Enum tax_and_charge {
 Table stock.purchase_receipts {
   id bigint [pk, increment]
   status purchase_receipt_status [default: "Draft"]
-  series string [Note: "Auto Generated", not null]
+  series varchar [Note: "Auto Generated", not null]
   supplier_id bigint [ref: > buying.suppliers.id, not null]
-  supplier_delivery_note string [null]
-  posting_date timestamptz [default: `now`]
+  supplier_delivery_note varchar [null]
+  posting_date timestamptz [default: `now()`]
   supplier_address bigint [ref: > common.addressable.id, null]
   supplier_contact bigint [ref: > common.contactable.id, null]
   shipping_address bigint [ref: > common.addressable.id, null]
@@ -811,9 +811,9 @@ Table stock.purchase_receipt_has_taxes_charges {
 
 Table accounting.pricing_rules {
   id bigint [pk, increment]
-  is_disabled boolean [default: 0]
-  series string [not null, Note: "Auto Generate"]
-  title string [not null]
+  is_disabled boolean [default: FALSE]
+  series varchar [not null, Note: "Auto Generate"]
+  title varchar [not null]
   rules_for pricing_rules [default: "Item Code"]
   discount_type pricing_rule_discount_type
   warehouse_id bigint [ref: > stock.warehouses.id, null]
@@ -909,15 +909,15 @@ Ref: stock.priceable.model_id > buying.suppliers.id
 
 Table buying.suppliers {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   supplier_group_id bigint [ref: > buying.supplier_groups.id]
   supplier_type supplier_type [default: "Company"]
-  allow_purchase_invoice_without_purchase_order boolean [default: 0]
-  allow_purchase_invoice_without_purchase_receipt boolean [default: 0]
-  is_transporter boolean [default: 0]
+  allow_purchase_invoice_without_purchase_order boolean [default: FALSE]
+  allow_purchase_invoice_without_purchase_receipt boolean [default: FALSE]
+  is_transporter boolean [default: FALSE]
   primary_address_id bigint [ref: - common.addressable.id]
   primary_contact_id bigint [ref: - common.contactable.id]
-  website string [null]
+  website varchar [null]
   details text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -931,8 +931,8 @@ Enum supplier_type {
 
 Table buying.supplier_groups {
   id bigint [pk, increment]
-  is_group boolean [default: 0]
-  name string [not null]
+  is_group boolean [default: FALSE]
+  name varchar [not null]
   description text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -948,8 +948,8 @@ Table stock.item_inventories {
   weight_per_unit integer [null]
   weight_uom bigint [ref: - stock.item_has_oums.id, Note: "Default UOM Item"]
   default_material_request_type material_request_type [default: "Purchase"]
-  valuation_method valuation_method [default: "", null]
-  allow_negative_stock boolean [default: 0]
+  valuation_method valuation_method [null]
+  allow_negative_stock boolean [default: FALSE]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -971,7 +971,7 @@ Enum valuation_method {
 
 Table stock.item_has_oums {
   id bigint [pk, increment]
-  is_default boolean [default: 0]
+  is_default boolean [default: FALSE]
   item_id bigint [ref: > stock.items.id, not null]
   uom_id bigint [ref: > stock.uoms.id, not null]
   conversion_factor integer
@@ -984,7 +984,7 @@ Table stock.item_barcodes {
   id bigint [pk, increment]
   item_id bigint [ref: > stock.items.id, not null]
   uom_id bigint [ref: > stock.item_has_oums.id, not null]
-  barcode string [not null]
+  barcode varchar [not null]
   barcode_type barcode_type [not null] 
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -998,7 +998,7 @@ Enum barcode_type {
 
 Table stock.shipments {
   id bigint [pk, increment]
-  series string [Note: "Auto Generated"]
+  series varchar [Note: "Auto Generated"]
   status shipment_status [default: "Draft"]
   shipment_type shipment_type [default: "Goods"]
   value_of_goods bigint [not null]
@@ -1007,10 +1007,10 @@ Table stock.shipments {
   pickup_from timestamptz [Note: "Start time pickup", not null]
   pickup_to timestamptz [Note: "End time pickup", not null]
   description_content text [not null]
-  service_provider string [null]
+  service_provider varchar [null]
   carrier_id bigint [ref: > common.carriers.id, null]
   carrier_service_id bigint [ref: > common.carrier_services.id, null]
-  awb_number string [null]
+  awb_number varchar [null]
   shipment_amount bigint [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -1027,8 +1027,8 @@ Enum shipment_status {
 
 Table common.carriers {
   id bigint [pk, increment]
-  name string [not null]
-  abb string [not null, Note: "Only Character"]
+  name varchar [not null]
+  abb varchar [not null, Note: "Only Character"]
   description text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -1038,8 +1038,8 @@ Table common.carriers {
 Table common.carrier_services {
   id bigint [pk, increment]
   carriers_id bigint [ref: - common.carriers.id]
-  name string [not null]
-  abb string [not null, Note: "Only Character"]
+  name varchar [not null]
+  abb varchar [not null, Note: "Only Character"]
   description text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -1084,20 +1084,20 @@ Enum shippable_model {
 
 Table accounting.payment_terms_templates {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
 }
 
-Table accounting.payment_terms_template_has_payment_terms {
+Table accounting.ptt_has_pts {
   payment_terms_template_id bigint [ref: <> accounting.payment_terms_templates.id, not null]
   payment_term_id bigint [ref: <> accounting.payment_terms.id, not null]
 }
 
 Table accounting.payment_terms {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   invoice_portion integer
   due_date_base due_date_base [default: "Day(s) after invoice date"]
   credit_days integer [not null, default: 0]
@@ -1115,9 +1115,9 @@ Enum due_date_base {
 
 Table company.companies {
   id bigint [pk, increment]
-  name string [not null]
+  name varchar [not null]
   parent_id bigint [ref: < company.companies.id]
-  is_group boolean [default: 0]
+  is_group boolean [default: FALSE]
   description text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -1139,9 +1139,9 @@ Table selling.territories {
 
 Table selling.sales_persons {
   id bigint [pk, increment]
-  is_group boolean [default: 0]
-  is_enable boolean [default: 1]
-  name string [not null]
+  is_group boolean [default: FALSE]
+  is_enable boolean [default: TRUE]
+  name varchar [not null]
   employee bigint [Note: "REFERENCE NOT SET"]
   parent_id bigint [ref: > selling.sales_persons.id]
   commision_rate integer [null]
@@ -1176,7 +1176,7 @@ Table selling.territory_has_targets {
 
 Table selling.quotations {
   id bigint [pk, increment]
-  series string [not null]
+  series varchar [not null]
   status quotation_status [default: "Draft"]
   posting_date timestamptz [default: `now()`]
   valid_upto timestamptz [null]
@@ -1255,9 +1255,9 @@ Table selling.quotation_has_taxes_charges {
 
 Table selling.sales_orders {
   id bigint [pk, increment]
-  series string [not null]
+  series varchar [not null]
   status sales_order_status [default: "Draft"]
-  delivery_status order_delivery_status [default: "Not Delivered"] 
+  delivery_status delivery_status [default: "Not Delivered"] 
   billed_status order_billed_status [default: "Not Billed"] 
   posting_date timestamptz [default: `now()`]
   delivery_date timestamptz [null]
@@ -1339,7 +1339,8 @@ Enum sales_order_type {
 
 Table selling.sales_invoices {
   id bigint [pk, increment]
-  series string [not null]
+  selling_sales_order_id bigint [ref: - selling.sales_orders.id]
+  series varchar [not null]
   status sales_invoice_status [default: "Draft"]
   posting_date timestamptz [default: `now()`]
   payment_due_date timestamptz
@@ -1404,9 +1405,9 @@ Table selling.sales_invoice_has_taxes_charges {
 
 Table common.status [Note: "Opsional bila status dimasukkan kedalam database"] {
   id bigint [pk, increment]
-  name string
+  name varchar
   model_id bigint
-  model_type string
+  model_type varchar
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
