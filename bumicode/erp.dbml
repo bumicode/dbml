@@ -1525,6 +1525,106 @@ Table accounting.accounts {
   deleted_at timestamptz [null]
 }
 
+Table buying.purchase_orders {
+  id bigint [pk, increment]
+  supplier_id bigint [ref: > buying.suppliers.id]
+  posting_date timestamptz [default: `now()`]
+  required_by timestamptz [not null]
+  confirm_no string [null]
+  confirm_date string [null]
+  address_id bigint [ref: > common.addressable.id]
+  contact_id bigint [ref: > common.contactable.id]
+  total_qty integer [not null]
+  total_net_weight integer [not null]
+  total_amount bigint [not null]
+  tax_category bigint [ref: > accounting.tax_categories.id]
+  purchase_tax_charge_template bigint [Note: "REFERENCE NOT SET"]
+  total_tax_charge bigint [not null]
+  grand_total bigint [not null]
+  rounding_adjustment bigint [null]
+  rounded_total bigint [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table buying.purchase_order_has_items {
+  id bigint [pk, increment]
+  purchase_order_id bigint [ref: > buying.purchase_orders.id]
+  item_id bigint [ref: > stock.items.id]
+  required_by timestamptz
+  qty integer
+  item_uom_id bigint [ref: > stock.item_has_oums.id]
+  rate bigint [default: 0, Note: "Default price for default uom items"]
+  amount bigint [default: 0, Note: "Accepted Qty * Rate"]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table buying.purchase_order_has_taxes_charges {
+  id bigint [pk, increment]
+  purchase_order_id bigint [ref: > buying.purchase_orders.id]
+  type tax_and_charge [not null]
+  account_id bigint [Note: "REFERENCE NOT SET"]
+  rate integer [default: 0]
+  amount bigint [default: 0]
+  total bigint [default: 0]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table buying.purchase_invoices {
+  id bigint [pk, increment]
+  supplier_id bigint [ref: > buying.suppliers.id]
+  posting_date timestamptz [default: `now()`]
+  required_by timestamptz [not null]
+  confirm_no string [null]
+  confirm_date string [null]
+  address_id bigint [ref: > common.addressable.id]
+  contact_id bigint [ref: > common.contactable.id]
+  total_qty integer [not null]
+  total_net_weight integer [not null]
+  total_amount bigint [not null]
+  tax_category bigint [ref: > accounting.tax_categories.id]
+  purchase_tax_charge_template bigint [Note: "REFERENCE NOT SET"]
+  total_tax_charge bigint [not null]
+  grand_total bigint [not null]
+  rounding_adjustment bigint [null]
+  rounded_total bigint [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table buying.purchase_invoice_has_items {
+  id bigint [pk, increment]
+  purchase_invoice_id bigint [ref: > buying.purchase_invoices.id]
+  item_id bigint [ref: > stock.items.id]
+  required_by timestamptz
+  qty integer
+  item_uom_id bigint [ref: > stock.item_has_oums.id]
+  rate bigint [default: 0, Note: "Default price for default uom items"]
+  amount bigint [default: 0, Note: "Accepted Qty * Rate"]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table buying.purchase_invoice_has_taxes_charges {
+  id bigint [pk, increment]
+  purchase_invoice_id bigint [ref: > buying.purchase_invoices.id]
+  type tax_and_charge [not null]
+  account_id bigint [Note: "REFERENCE NOT SET"]
+  rate integer [default: 0]
+  amount bigint [default: 0]
+  total bigint [default: 0]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
 TableGroup accounting {
   accounting.accounts
   accounting.applied_rules
@@ -1539,6 +1639,12 @@ TableGroup accounting {
 }
 
 TableGroup buying {
+  buying.purchase_orders
+  buying.purchase_order_has_items
+  buying.purchase_order_has_taxes_charges
+  buying.purchase_invoices
+  buying.purchase_invoice_has_items
+  buying.purchase_invoice_has_taxes_charges
   buying.suppliers
   buying.supplier_groups
 }
@@ -1573,6 +1679,7 @@ TableGroup selling {
     selling.sales_orders
     selling.sales_order_has_items
     selling.sales_order_has_taxes_charges
+    selling.sales_order_has_payment_terms
     selling.territories
     selling.territory_has_targets
 }
