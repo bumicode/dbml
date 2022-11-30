@@ -14,20 +14,21 @@ Project bumicode_erp {
   '''
 }
 
-Table users{
+Table core.users{
   id bigint [pk, increment]
   slug varchar
   name varchar
   email varchar
   email_verified_at timestamptz [null]
   is_active boolean [default: true]
+  password varchar
   created_at timestamptz
   updated_at timestamptz
   deleted_at timestamptz
   Note: "Data pengguna"
 }
 
-Table roles {
+Table core.roles {
   id bigint [pk, increment]
   name varchar
   description text
@@ -37,7 +38,7 @@ Table roles {
   Note: "Data Peran (Roles)"
 }
 
-Table permissions {
+Table core.permissions {
   id bigint [pk, increment]
   name varchar
   description text
@@ -47,15 +48,15 @@ Table permissions {
   Note: "Data Akses / Izin (Permissions)"
 }
 
-Table role_has_permission {
-  role_id bigint [ref:  <> roles.id]
-  permission_id bigint [ref:  <> permissions.id]
+Table core.role_has_permission {
+  role_id bigint [ref:  <> core.roles.id]
+  permission_id bigint [ref:  <> core.permissions.id]
   Note: "Authorization - What Permissions do you have ?"
 }
 
-Table model_has_role {
-  user_id bigint [ref: <> users.id]
-  role_id bigint [ref: <> roles.id]
+Table core.model_has_role {
+  user_id bigint [ref: <> core.users.id]
+  role_id bigint [ref: <> core.roles.id]
   Note: "Authentication - Who are you ?"
 }
 
@@ -64,7 +65,7 @@ Table crm.leads {
   series varchar [not null]
   saluation bigint [ref: - crm.saluations.id, null]
   job_title varchar [null]
-  lead_owner bigint [ref: - users.id, null]
+  lead_owner bigint [ref: - core.users.id, null]
   gender bigint [ref: - crm.genders.id, null]
   first_name varchar [not null]
   middle_name varchar [null]
@@ -133,9 +134,9 @@ Table crm.genders {
 
 Table common.addresses {
   id bigint [pk, increment]
-  is_preferred_billing_address boolean [default: FALSE]
-  is_preferred_shipping_address boolean [default: FALSE]
-  is_disabled boolean [default: FALSE]
+  is_preferred_billing_address boolean [default: false]
+  is_preferred_shipping_address boolean [default: false]
+  is_disabled boolean [default: false]
   title varchar [not null]
   address_type address_type [default: "Billing"]
   address_line_one varchar [not null]
@@ -201,13 +202,13 @@ Ref: common.addressable.model_id < selling.quotations.id
 
 Table common.contacts {
   id bigint [pk, increment]
-  is_primary_contact boolean [default: FALSE]
-  is_billing_contact boolean [default: FALSE]
+  is_primary_contact boolean [default: false]
+  is_billing_contact boolean [default: false]
   first_name varchar [not null]
   middle_name varchar [null]
   last_name varchar [null]
   email_address varchar [null]
-  user_id bigint [ref: - users.id, null]
+  user_id bigint [ref: - core.users.id, null]
   address_id bigint [ref: - common.addressable.id, null]
   status contact_status [default: "Passive"]
   saluation bigint [ref: - crm.saluations.id, null]
@@ -257,7 +258,7 @@ Ref: common.contactable.model_id < selling.quotations.id
 Table common.emails {
   id bigint [pk, increment]
   email varchar [not null]
-  is_primary boolean [default: FALSE]
+  is_primary boolean [default: false]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -271,8 +272,8 @@ Table common.contact_has_email {
 Table common.numbers {
   id bigint [pk, increment]
   number varchar [not null]
-  is_primary_phone boolean [default: FALSE]
-  is_primary_mobile boolean [default: FALSE]
+  is_primary_phone boolean [default: false]
+  is_primary_mobile boolean [default: false]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -291,7 +292,7 @@ Table crm.opportunity {
   status opportunity_status
   opportunity_type_id bigint [ref: - crm.opportunity_types.id]
   lead_source_id bigint [ref: - crm.lead_sources.id]
-  opportunity_owner_id bigint [ref: - users.id]
+  opportunity_owner_id bigint [ref: - core.users.id]
   sales_stage_id bigint [ref: - crm.sales_stages.id]
   expected_closing_date date [null]
   probability integer [default: 100]
@@ -402,12 +403,12 @@ Table selling.customers {
   default_company_bank_account bigint [null]
   customer_type customer_type [default: "Individual"]
   territory_id bigint [ref: > selling.territories.id]
-  account_manager_id bigint [ref: > public.users.id]
+  account_manager_id bigint [ref: > core.users.id]
   gender bigint [ref: - crm.genders.id, null]
-  allow_sales_invoice_creation_without_sales_order boolean [default: FALSE]
-  allow_sales_invoice_creation_without_delivery_note boolean [default: FALSE]
-  is_internal_customer boolean [default: FALSE]
-  is_disabled boolean [default: FALSE]
+  allow_sales_invoice_creation_without_sales_order boolean [default: false]
+  allow_sales_invoice_creation_without_delivery_note boolean [default: false]
+  is_internal_customer boolean [default: false]
+  is_disabled boolean [default: false]
   from_lead_id bigint [ref: - crm.leads.id, null]
   from_opportunity bigint [ref: - crm.opportunity.id, null]
   primary_contact_id bigint [null, ref: - common.contactable.id]
@@ -424,7 +425,7 @@ Enum customer_type {
 
 Table selling.customer_groups {
   id bigint [pk, increment]
-  is_group boolean [default: FALSE]
+  is_group boolean [default: false]
   name varchar [not null]
   parent_id bigint [ref: > selling.customer_groups.id, null]
   default_price_list_id bigint [ref: > stock.price_lists.id, null]
@@ -446,8 +447,8 @@ Table selling.credit_limits {
 Table stock.price_lists {
   id bigint [pk, increment]
   name varchar [not null]
-  is_buying boolean [default: FALSE]
-  is_selling boolean [default: FALSE]
+  is_buying boolean [default: false]
+  is_selling boolean [default: false]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -455,9 +456,9 @@ Table stock.price_lists {
 
 Table stock.items {
   id bigint [pk, increment]
-  is_disabled boolean [default: FALSE]
-  is_maintain_stock boolean [default: TRUE]
-  is_has_variant boolean [default: FALSE]
+  is_disabled boolean [default: false]
+  is_maintain_stock boolean [default: true]
+  is_has_variant boolean [default: false]
   brand_id bigint [ref: > stock.brands.id]
   variant_of bigint [ref: > stock.items.id, null]
   code varchar [not null]
@@ -480,7 +481,7 @@ Table stock.item_groups {
   id bigint [pk, increment]
   name varchar [not null]
   parent_id bigint [ref: > stock.item_groups.id]
-  is_group boolean [default: FALSE]
+  is_group boolean [default: false]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -488,7 +489,7 @@ Table stock.item_groups {
 
 Table stock.uoms {
   id bigint [pk, increment]
-  is_enable boolean [default: TRUE]
+  is_enable boolean [default: true]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
@@ -496,8 +497,8 @@ Table stock.uoms {
 
 Table stock.warehouses {
   id bigint [pk, increment]
-  is_disabled boolean [default: FALSE]
-  is_group boolean [default: FALSE]
+  is_disabled boolean [default: false]
+  is_group boolean [default: false]
   warehouse_type_id bigint [ref: > stock.warehouse_types.id, null]
   name varchar [not null]
   parent_id bigint [ref: > stock.warehouses.id, null]
@@ -551,8 +552,8 @@ Table stock.item_has_attributes {
 
 Table stock.item_prices {
   id bigint [pk, increment]
-  is_buying boolean [default: FALSE]
-  is_selling boolean [default: FALSE]
+  is_buying boolean [default: false]
+  is_selling boolean [default: false]
   item_id bigint [ref: > stock.items.id, not null]
   item_uom_id bigint [ref: > stock.item_has_oums.id, not null]
   packing_unit integer [default: 0]
@@ -816,7 +817,7 @@ Table stock.purchase_receipt_has_taxes_charges {
 
 Table accounting.pricing_rules {
   id bigint [pk, increment]
-  is_disabled boolean [default: FALSE]
+  is_disabled boolean [default: false]
   series varchar [not null, Note: "Auto Generate"]
   title varchar [not null]
   rules_for pricing_rules [default: "Item Code"]
@@ -917,9 +918,9 @@ Table buying.suppliers {
   name varchar [not null]
   supplier_group_id bigint [ref: > buying.supplier_groups.id]
   supplier_type supplier_type [default: "Company"]
-  allow_purchase_invoice_without_purchase_order boolean [default: FALSE]
-  allow_purchase_invoice_without_purchase_receipt boolean [default: FALSE]
-  is_transporter boolean [default: FALSE]
+  allow_purchase_invoice_without_purchase_order boolean [default: false]
+  allow_purchase_invoice_without_purchase_receipt boolean [default: false]
+  is_transporter boolean [default: false]
   primary_address_id bigint [ref: - common.addressable.id]
   primary_contact_id bigint [ref: - common.contactable.id]
   website varchar [null]
@@ -936,7 +937,7 @@ Enum supplier_type {
 
 Table buying.supplier_groups {
   id bigint [pk, increment]
-  is_group boolean [default: FALSE]
+  is_group boolean [default: false]
   name varchar [not null]
   description text [null]
   created_at timestamptz [default: `now()`]
@@ -954,11 +955,12 @@ Table stock.item_inventories {
   weight_uom bigint [ref: - stock.item_has_oums.id, Note: "Default UOM Item"]
   default_material_request_type material_request_type [default: "Purchase"]
   valuation_method valuation_method [null]
-  allow_negative_stock boolean [default: FALSE]
+  allow_negative_stock boolean [default: false]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
   deleted_at timestamptz [null]
 }
+
 
 Enum material_request_type {
   "Purchase"
@@ -976,7 +978,7 @@ Enum valuation_method {
 
 Table stock.item_has_oums {
   id bigint [pk, increment]
-  is_default boolean [default: FALSE]
+  is_default boolean [default: false]
   item_id bigint [ref: > stock.items.id, not null]
   uom_id bigint [ref: > stock.uoms.id, not null]
   conversion_factor integer
@@ -985,9 +987,9 @@ Table stock.item_has_oums {
   deleted_at timestamptz [null]
 }
 
-Table stock.item_barcodes {
+Table stock.item_has_barcodes {
   id bigint [pk, increment]
-  item_id bigint [ref: > stock.items.id, not null]
+  item_inventory_id bigint [ref: > stock.item_inventories.id]
   uom_id bigint [ref: > stock.item_has_oums.id, not null]
   barcode varchar [not null]
   barcode_type barcode_type [not null] 
@@ -1122,7 +1124,7 @@ Table company.companies {
   id bigint [pk, increment]
   name varchar [not null]
   parent_id bigint [ref: < company.companies.id]
-  is_group boolean [default: FALSE]
+  is_group boolean [default: false]
   description text [null]
   created_at timestamptz [default: `now()`]
   edited_at timestamptz [default: `now()`]
@@ -1144,8 +1146,8 @@ Table selling.territories {
 
 Table selling.sales_persons {
   id bigint [pk, increment]
-  is_group boolean [default: FALSE]
-  is_enable boolean [default: TRUE]
+  is_group boolean [default: false]
+  is_enable boolean [default: true]
   name varchar [not null]
   employee bigint [Note: "REFERENCE NOT SET"]
   parent_id bigint [ref: > selling.sales_persons.id]
@@ -1418,13 +1420,108 @@ Table common.status [Note: "Opsional bila status dimasukkan kedalam database"] {
   deleted_at timestamptz [null]
 }
 
+Table stock.item_accountings {
+  id bigint [pk, increment]
+  company_id bigint [ref: > company.companies.id]
+  default_warehouse_id bigint [ref: > stock.warehouses.id]
+  default_price_list_id bigint [ref: > stock.price_lists.id]
+  purchase_cost_center_id bigint [Note: "REFERENCE NOT SET", null]
+  purchase_expense_acc_id bigint [Note: "REFERENCE NOT SET", null]
+  purchase_provisional_acc_id bigint [Note: "REFERENCE NOT SET", null]
+  purchase_supplier_id bigint [ref: > buying.suppliers.id, null]
+  sales_cost_center bigint [Note: "REFERENCE NOT SET", null]
+  sales_income_acc_id bigint [Note: "REFERENCE NOT SET", null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table stock.item_purchasings {
+  id bigint [pk, increment]
+  allow_purchase boolean [default: true]
+  purchase_uom_id bigint [ref: - stock.item_has_oums.id]
+  min_qty integer [default: 1]
+  safety_stock integer [default: 10]
+  lead_time_days integer [default: 0]
+  last_purchase_rate bigint
+  dropship_from_supplier boolean [default: false]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table stock.item_purchase_has_suppliers {
+  id bigint [pk, increment]
+  supplier_id bigint [ref: > buying.suppliers.id]
+  supplier_part_number string
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table stock.item_sales {
+  id bigint [pk, increment]
+  sales_uom_id bigint [ref: - stock.item_has_oums.id]
+  max_discount integer [null]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table stock.item_taxes {
+  id bigint [pk, increment]
+  item_id bigint [ref: > stock.items.id]
+  item_tax_template_id bigint [ref: > accounting.item_tax_templates.id]
+  tax_category_id bigint [ref: > accounting.tax_categories.id]
+  valid_from timestamptz
+  min_rate bigint
+  max_rate bigint
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table accounting.item_tax_templates {
+  id bigint [pk, increment]
+  is_disabled boolean [default: false]
+  title string
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table accounting.tax_categories {
+  id bigint [pk, increment]
+  is_disabled boolean [default: false]
+  title string
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
+Table accounting.item_ttem_has_taxes {
+  item_tax_template_id bigint [ref: <> accounting.item_tax_templates.id]
+  account_id bigint [ref: <> accounting.accounts.id]
+}
+
+Table accounting.accounts {
+  id bigint [pk, increment]
+  created_at timestamptz [default: `now()`]
+  edited_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null]
+}
+
 TableGroup accounting {
-  accounting.pricing_rules
-  accounting.pricing_rule_targetable
+  accounting.accounts
   accounting.applied_rules
+  accounting.item_tax_templates
+  accounting.item_ttem_has_taxes
   accounting.payment_terms
   accounting.payment_terms_templates
   accounting.ptt_has_pts
+  accounting.pricing_rules
+  accounting.pricing_rule_targetable
+  accounting.tax_categories
 }
 
 TableGroup buying {
@@ -1474,15 +1571,19 @@ TableGroup stock {
   stock.delivery_note_has_taxes
   stock.entry_types
   stock.items
+  stock.item_accountings
   stock.item_attributes
-  stock.item_barcodes
+  stock.item_has_barcodes
   stock.item_groups
   stock.item_has_oums
   stock.item_inventories
   stock.item_has_attributes
   stock.item_prices
+  stock.item_purchasings
+  stock.item_purchase_has_suppliers
   stock.material_requests
   stock.material_request_has_item
+  stock.item_sales
   stock.stock_entries
   stock.stock_entrie_has_item
   stock.packing_lists
